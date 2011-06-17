@@ -1,0 +1,22 @@
+name: ZombieSurvival
+main: samp20.zombiesurvival.ZombieSurvival
+version: 0.1
+commands:
+    level:
+        description: level creation/switching commands
+        usage: /level (( new | load | delete ) <name> ) | save | list
+    zspawn:
+        description: creates a zombie spawnpoint at the current location. Use [jump] <name> to jump to the spawn
+        usage: /zspawn (( set | remove | jump ) <name> ) | list
+    dspawn:
+        description: sets the death spawnpoint. Use [jump] to jump to the spawn
+        usage: /dspawn [jump]
+    ispawn:
+        description: sets the initial spawnpoint. Use [jump] to jump to the spawn
+        usage: /ispawn [jump]
+    zombiemode:
+        description: starts waves
+        usage: /zombiemode ( enable | disable )
+    vote:
+        description: cast your vote
+        usage: /vote <number>
