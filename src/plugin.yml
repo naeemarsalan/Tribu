@@ -1,6 +1,6 @@
 name: ZombieSurvival
 main: samp20.zombiesurvival.ZombieSurvival
-version: 0.1
+version: 0.2
 commands:
     level:
         description: level creation/switching commands
