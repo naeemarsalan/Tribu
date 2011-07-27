@@ -1,4 +1,4 @@
-package samp20.zombiesurvival;
+package graindcafe.tribu;
 
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
@@ -15,10 +15,10 @@ import org.bukkit.World;
 
 public class LevelFileLoader {
 
-	private ZombieSurvival plugin;
+	private Tribu plugin;
 	private Set<String> levels;
 
-	public LevelFileLoader(ZombieSurvival instance) {
+	public LevelFileLoader(Tribu instance) {
 		plugin = instance;
 		levels = new HashSet<String>();
 		levels.clear();
@@ -26,35 +26,55 @@ public class LevelFileLoader {
 		File dir = new File(Constants.levelFolder);
 		if (!dir.exists()) {
 			plugin.LogInfo(Constants.InfoLevelFolderDoesntExist);
-			String[] levelFolders = Constants.levelFolder	
-					.split("/");
+			String[] levelFolders = Constants.levelFolder.split("/");
 			String tmplevelFolder = "";
 			for (byte i = 0; i < levelFolders.length; i++) {
 				tmplevelFolder = tmplevelFolder.concat(levelFolders[i] + File.separatorChar);
-				
+
 				dir = new File(tmplevelFolder);
 				dir.mkdir();
 			}
 		}
 		File[] files = dir.listFiles();
-		plugin.LogInfo(String.format(Constants.InfoLevelFound,
-				String.valueOf(files.length)));
+		plugin.LogInfo(String.format(Constants.InfoLevelFound, String.valueOf(files.length)));
 		if (files != null) {
 			for (File file : files) {
-				levels.add(file.getName().substring(0,
-						file.getName().lastIndexOf(".")));
+				levels.add(file.getName().substring(0, file.getName().lastIndexOf(".")));
 			}
 		}
 
+	}
+
+	public boolean deleteLevel(String name) {
+		File file = new File(Constants.levelFolder + "/" + name + ".lvl");
+		if (file.exists()) {
+			boolean result = file.delete();
+			if (!result) {
+				plugin.LogWarning(Constants.WarningIOErrorOnFileDelete);
+			} else {
+				levels.remove(name);
+			}
+			return result;
+		}
+		return false;
 	}
 
 	public Set<String> getLevelList() {
 		return levels;
 	}
 
-	public ZSurvivalLevel loadLevel(String name) {
-		ZSurvivalLevel level = null;
+	public TribuLevel loadLevelIgnoreCase(String name) {
+		for (String level : levels) {
+			if (level.equalsIgnoreCase(name))
+				name = level;
+		}
+		return loadLevel(name);
+	}
+
+	public TribuLevel loadLevel(String name) {
+		TribuLevel level = null;
 		try {
+
 			File file = new File(Constants.levelFolder + "/" + name + ".lvl");
 			if (!file.exists()) {
 				return null;
@@ -62,6 +82,17 @@ public class LevelFileLoader {
 			FileInputStream fstream = new FileInputStream(file);
 			DataInputStream in = new DataInputStream(fstream);
 			int version = in.readByte();
+
+			if (version == 1) {
+				// set the file version
+				new FileOutputStream(file).write(2);
+				version = 2;
+
+				// set sign count = 0
+				new FileOutputStream(file, true).write(0);
+				in.reset();
+			}
+
 			if (version != Constants.LevelFileVersion) {
 				fstream.close();
 				plugin.LogSevere(Constants.SevereWorldInvalidFileVersion);
@@ -89,8 +120,8 @@ public class LevelFileLoader {
 			Location spawn = new Location(world, sx, sy, sz, sYaw, 0.0f);
 			Location death = new Location(world, dx, dy, dz, dYaw, 0.0f);
 
-			level = new ZSurvivalLevel(name, spawn);
-			level.setDeath(death);
+			level = new TribuLevel(name, spawn);
+			level.setDeathSpawn(death);
 
 			int spawncount = in.readInt();
 
@@ -106,20 +137,24 @@ public class LevelFileLoader {
 				pos = new Location(world, sx, sy, sz, sYaw, 0.0f);
 				level.addZombieSpawn(pos, spawnName);
 			}
-		} catch (Exception e) {
-			plugin.LogSevere(String.format(Constants.SevereException,
-					e.toString()));
+			int signCount = in.readInt();
+			for (int i = 0; i < signCount; i++) {
+				level.addSign(TribuSign.LoadFromStream(plugin, world, in));
+			}
 
+		} catch (Exception e) {
+			plugin.LogSevere(String.format(Constants.SevereErrorDuringLevelLoading, Tribu.getExceptionMessage(e)));
 			level = null;
 		}
+
 		return level;
 	}
 
-	public ZSurvivalLevel newLevel(String name, Location spawn) {
-		return new ZSurvivalLevel(name, spawn);
+	public TribuLevel newLevel(String name, Location spawn) {
+		return new TribuLevel(name, spawn);
 	}
 
-	public boolean saveLevel(ZSurvivalLevel level) {
+	public boolean saveLevel(TribuLevel level) {
 		if (level == null) {
 			return true; // Sorta successful since a save isn't really needed
 							// and nothing failed
@@ -132,11 +167,10 @@ public class LevelFileLoader {
 		FileOutputStream out;
 		DataOutputStream o;
 		try {
-			out = new FileOutputStream(Constants.levelFolder + "/"
-					+ level.getName() + ".lvl", false);
+			out = new FileOutputStream(Constants.levelFolder + "/" + level.getName() + ".lvl", false);
 			o = new DataOutputStream(out);
-			Location spawn = level.getSpawn();
-			Location death = level.getDeath();
+			Location spawn = level.getInitialSpawn();
+			Location death = level.getDeathSpawn();
 
 			o.writeByte(Constants.LevelFileVersion);
 
@@ -162,28 +196,23 @@ public class LevelFileLoader {
 				o.writeFloat(zspawn.getValue().getYaw());
 				o.writeUTF(zspawn.getKey());
 			}
+			TribuSign[] signs = level.getSigns();
+			if (signs == null) {
+				o.writeInt(0);
+			} else {
+				o.writeInt(signs.length);
+				for (int i = 0; i < signs.length; i++) {
+					signs[i].SaveToStream(o);
+				}
+			}
 			o.flush();
 			o.close();
 			out.close();
 		} catch (Exception e) {
-			plugin.LogSevere(e.getMessage());
+			plugin.LogSevere(String.format(Constants.SevereErrorDuringLevelSaving, Tribu.getExceptionMessage(e)));
 			return false;
 		}
 		levels.add(level.getName());
 		return true;
-	}
-
-	public boolean deleteLevel(String name) {
-		File file = new File(Constants.levelFolder + "/" + name + ".lvl");
-		if (file.exists()) {
-			boolean result = file.delete();
-			if (!result) {
-				plugin.LogWarning(Constants.WarningIOErrorOnFileDelete);
-			} else {
-				levels.remove(name);
-			}
-			return result;
-		}
-		return false;
 	}
 }

@@ -1,17 +1,18 @@
-package samp20.zombiesurvival.executors;
+package graindcafe.tribu.executors;
+
+import graindcafe.tribu.Constants;
+import graindcafe.tribu.Tribu;
 
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 
-import samp20.zombiesurvival.Constants;
-import samp20.zombiesurvival.ZombieSurvival;
 
 public class CmdIspawn implements CommandExecutor {
-	private ZombieSurvival plugin;
+	private Tribu plugin;
 
-	public CmdIspawn(ZombieSurvival instance) {
+	public CmdIspawn(Tribu instance) {
 		plugin = instance;
 	}
 
@@ -37,14 +38,14 @@ public class CmdIspawn implements CommandExecutor {
 		if (args.length == 1) {
 			if (args[0].equalsIgnoreCase("jump")) {
 
-				player.teleport(plugin.getLevel().getSpawn());
+				player.teleport(plugin.getLevel().getInitialSpawn());
 				player.sendMessage(Constants.MessageTeleportedToInitialSpawn);
 				return true;
 
 			}
 		} else {
 
-			plugin.getLevel().setSpawn(player.getLocation());
+			plugin.getLevel().setInitialSpawn(player.getLocation());
 			player.sendMessage(Constants.MessageInitialSpawnSet);
 			return true;
 

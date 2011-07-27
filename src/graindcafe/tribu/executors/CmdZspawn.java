@@ -1,4 +1,7 @@
-package samp20.zombiesurvival.executors;
+package graindcafe.tribu.executors;
+
+import graindcafe.tribu.Constants;
+import graindcafe.tribu.Tribu;
 
 import org.bukkit.Location;
 import org.bukkit.command.Command;
@@ -6,13 +9,11 @@ import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 
-import samp20.zombiesurvival.Constants;
-import samp20.zombiesurvival.ZombieSurvival;
 
 public class CmdZspawn implements CommandExecutor {
-	private ZombieSurvival plugin;
+	private Tribu plugin;
 
-	public CmdZspawn(ZombieSurvival instance) {
+	public CmdZspawn(Tribu instance) {
 		plugin = instance;
 	}
 
@@ -63,7 +64,7 @@ public class CmdZspawn implements CommandExecutor {
 			}
 		} else if (args.length == 1 && args[0].equalsIgnoreCase("list")) {
 
-			plugin.getLevel().ListSpawns(player);
+			plugin.getLevel().listZombieSpawns(player);
 			return true;
 		}
 

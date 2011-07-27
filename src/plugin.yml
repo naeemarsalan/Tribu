@@ -1,10 +1,10 @@
-name: ZombieSurvival
-main: samp20.zombiesurvival.ZombieSurvival
-version: 0.2
+name: Tribu
+main: graindcafe.tribu.Tribu
+version: 0.3.1.1000
 commands:
-    level:
-        description: level creation/switching commands
-        usage: /level (( new | load | delete ) <name> ) | save | list
+    tribu:
+        description: start,stop, join, leave, the game, create, save, load, levels. 
+        usage: /tribu ((create | load | delete) <name>) | enter | leave | list | start [<name>] | stop | save
     zspawn:
         description: creates a zombie spawnpoint at the current location. Use [jump] <name> to jump to the spawn
         usage: /zspawn (( set | remove | jump ) <name> ) | list
@@ -14,9 +14,4 @@ commands:
     ispawn:
         description: sets the initial spawnpoint. Use [jump] to jump to the spawn
         usage: /ispawn [jump]
-    zombiemode:
-        description: starts waves
-        usage: /zombiemode ( enable | disable )
-    vote:
-        description: cast your vote
-        usage: /vote <number>
+    

@@ -1,4 +1,4 @@
-package samp20.zombiesurvival;
+package graindcafe.tribu;
 
 import org.bukkit.entity.LivingEntity;
 import org.bukkit.entity.Player;
@@ -16,12 +16,12 @@ public class CleverMob {
 		return ent;
 	}
 
-	public void setAttacker(Player player) {
-		lastAttacker = player;
-	}
-
 	public Player getLastAttacker() {
 		return lastAttacker;
+	}
+
+	public void setAttacker(Player player) {
+		lastAttacker = player;
 	}
 
 }
