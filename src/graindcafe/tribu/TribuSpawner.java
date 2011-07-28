@@ -116,7 +116,7 @@ public class TribuSpawner {
 				plugin.getServer().broadcastMessage(
 						Constants.BroadcastWaveComplete);
 				plugin.getWaveStarter().incrementWave();
-				plugin.getWaveStarter().scheduleWave(Constants.TicksBySecond*plugin.getConfiguration().getInt("wave.startDelay", 10));
+				plugin.getWaveStarter().scheduleWave(Constants.TicksBySecond*plugin.getConfiguration().getInt("WaveStart.Delay", 10));
 			}
 		}
 	}

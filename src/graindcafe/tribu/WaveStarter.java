@@ -3,6 +3,8 @@ package graindcafe.tribu;
 import java.util.Arrays;
 import java.util.List;
 
+import org.bukkit.entity.Player;
+
 
 
 public class WaveStarter implements Runnable {
@@ -60,13 +62,20 @@ public class WaveStarter implements Runnable {
 	
 	public void run() {
 		if (plugin.isRunning()) {
-			if(plugin.getConfiguration().getBoolean("wave.setTime",true))
-				plugin.getLevel().getInitialSpawn().getWorld().setTime(plugin.getConfiguration().getInt("wave.setTimeTo", 37000));
+			if(plugin.getConfiguration().getBoolean("WaveStart.TeleportPlayers", false))
+			{
+				for(Player p : plugin.getPlayers())
+				{
+					p.teleport(plugin.getLevel().getInitialSpawn());
+				}
+			}
+			if(plugin.getConfiguration().getBoolean("WaveStart.SetTime",true))
+				plugin.getLevel().getInitialSpawn().getWorld().setTime(plugin.getConfiguration().getInt("WaveStart.SetTimeTo", 37000));
 			scheduled = false;
 			plugin.revivePlayers(false);
 			plugin.getLevel().updateSigns();
-			int max = calcPolynomialFunction(waveNumber,plugin.getConfiguration().getDoubleList("wave.zombies.numberByWave", Arrays.asList(0.5,1.0,1.0)));
-			int health = calcPolynomialFunction(waveNumber,plugin.getConfiguration().getDoubleList("wave.zombies.health", Arrays.asList(.5,4.0)));
+			int max = calcPolynomialFunction(waveNumber,plugin.getConfiguration().getDoubleList("Zombies.Quantity", Arrays.asList(0.5,1.0,1.0)));
+			int health = calcPolynomialFunction(waveNumber,plugin.getConfiguration().getDoubleList("Zombies.Health", Arrays.asList(.5,4.0)));
 			plugin.getSpawnTimer().StartWave( max, health);
 			plugin.getServer().broadcastMessage(String.format(Constants.BroadcastStartingWave,String.valueOf(waveNumber) , String.valueOf(max),String.valueOf(health)));
 			

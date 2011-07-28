@@ -44,6 +44,7 @@ public class Tribu extends JavaPlugin {
 
 	private boolean dedicatedServer = false;
 	private HashMap<Player, PlayerStats> players;
+	
 
 	public void addPlayer(Player player) {
 		if (!players.containsKey(player)) {
@@ -158,7 +159,33 @@ public class Tribu extends JavaPlugin {
 
 	public void onEnable() {
 		log = Logger.getLogger("Minecraft");
-		dedicatedServer = getConfiguration().getBoolean("server.isDedicatedForThisPlugin", true);
+		
+		getConfiguration().setHeader("# Tribu Config File Version 1.1 \n"
+				+ "# Here is the default settings :\n"
+				+"# PluginMode:\n"
+				+"#      ServerExclusive: true\n"
+				+"# WaveStart:\n"
+				+"#      SetTime: true\n"
+				+"#      SetTimeTo: 37000\n"
+				+"#      Delay: 10\n"
+				+"#      TeleportPlayers:false\n"
+				+"# Zombies:\n"
+				+"#      Health: [0.5,4.0]\n"
+				+"#      Quantity: [0.5,1.0,1.0]\n"
+				+"# Stats:\n"
+				+"#    OnZombieKill:\n"
+				+"#       Money: 15\n"
+				+"#       Points: 10\n"
+				+"#    OnPlayerDeath:\n"
+				+"#       Money:10000\n"
+				+"#       Points:50\n");
+		getConfiguration().save();
+		dedicatedServer = getConfiguration().getBoolean("PluginMode.ServerExclusive", true);
+		/*
+		for(Entry<String, Object> cur : getConfiguration().getAll().entrySet())
+		{
+			LogInfo(cur.getKey()+" = "+cur.getValue().toString());
+		}*/
 		isRunning = false;
 		aliveCount = 0;
 		level = null;
@@ -235,13 +262,14 @@ public class Tribu extends JavaPlugin {
 
 		}
 	}
-
+		
 	public void setDead(Player player) {
 		if (isAlive(player)) {
 			aliveCount--;
 			PlayerStats p = players.get(player);
 			p.resetMoney();
-			p.subtractPoints(50);
+			p.subtractmoney(getConfiguration().getInt("Stats.OnPlayerDeath.Money", 10000));
+			p.subtractPoints(getConfiguration().getInt("Stats.OnPlayerDeath.Points", 50));
 			p.msgStats();
 			/*
 			 * Set<Entry<Player, PlayerStats>> stats = players.entrySet(); for
@@ -286,7 +314,7 @@ public class Tribu extends JavaPlugin {
 
 			getWaveStarter().resetWave();
 			revivePlayers(true);
-			getWaveStarter().scheduleWave(Constants.TicksBySecond*getConfiguration().getInt("wave.startDelay", 10));
+			getWaveStarter().scheduleWave(Constants.TicksBySecond*getConfiguration().getInt("WaveStart.Delay", 10));
 		}
 	}
 

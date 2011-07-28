@@ -76,8 +76,8 @@ public class TribuEntityListener extends EntityListener {
 					if (player != null && player.isOnline()) {
 						PlayerStats stats = plugin.getStats(player);
 						if (stats != null) {
-							stats.addMoney(15);
-							stats.addPoints(10);
+							stats.addMoney(plugin.getConfiguration().getInt("Stats.OnZombieKill.Money", 10));
+							stats.addPoints(plugin.getConfiguration().getInt("Stats.OnZombieKill.Points", 15));
 							stats.msgStats();
 							plugin.getLevel().updateSigns();
 						} else {
